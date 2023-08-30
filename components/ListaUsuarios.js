@@ -88,24 +88,25 @@ const ListaUsuarios = () => {
     });
   };
 
-  // Solicitar permisos
-  const checkNotificationPermissions = async () => {
-    const settings = await Notifications.getPermissionsAsync();
-    if (settings.granted) {
-      console.log('Permisos de notificación otorgados.');
-    } else {
-      console.log('Permisos de notificación denegados.');
-    }
-  };
-
+  // No solicita los permisos al usuario, algo no funciona bien
   // const checkNotificationPermissions = async () => {
-  //   const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
-  //   if (status === 'granted') {
+  //   const settings = await Notifications.getPermissionsAsync();
+  //   if (settings.granted) {
   //     console.log('Permisos de notificación otorgados.');
   //   } else {
   //     console.log('Permisos de notificación denegados.');
   //   }
   // };
+
+  // Este código va a quedar obsoleto
+  const checkNotificationPermissions = async () => {
+    const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+    if (status === 'granted') {
+      console.log('Permisos de notificación otorgados.');
+    } else {
+      console.log('Permisos de notificación denegados.');
+    }
+  };
 
   // Manejador de notificaciones en primer plano
   /*const notificationForegroundListener = Notifications.addNotificationReceivedListener(notification => {
