@@ -64,16 +64,6 @@ const ListaUsuarios = () => {
     (total, usuario) => total + usuario.mensajesSinLeer, 0
   );
 
-  // const showNotification = (totalMensajesSinLeer) => {
-  //   Notifications.scheduleNotificationAsync({
-  //     content: {
-  //       title: 'Mensajes sin leer',
-  //       body: `Tienes ${totalMensajesSinLeer} mensajes sin leer`,
-  //     },
-  //     trigger: null,
-  //   });
-  // };
-
   const showNotification = async (totalMensajesSinLeer) => {
     const notificationId = 'mensajeSinLeer';
 
@@ -137,7 +127,7 @@ const ListaUsuarios = () => {
       }
     }, 30000);
 
-    return () => { 
+    return () => {
       clearInterval(intervalId);
       clearInterval(intervalId2);
     }
@@ -188,8 +178,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     width: "100%",
-    // borderWidth: 0.5,
-    // borderColor: "black",
     padding: 5,
     margin: 2,
   },
