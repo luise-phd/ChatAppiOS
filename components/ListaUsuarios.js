@@ -43,8 +43,8 @@ async function unregisterBackgroundFetchAsync() {
 }
 
 import Axios from 'axios';
-// Axios.defaults.baseURL = 'http://192.168.20.23:4000';
-Axios.defaults.baseURL = 'https://backchatapp-production.up.railway.app'
+Axios.defaults.baseURL = 'http://192.168.20.23:4000';
+// Axios.defaults.baseURL = 'https://backchatapp-production.up.railway.app'
 
 import * as Notifications from 'expo-notifications';
 import * as Permissions from 'expo-permissions';
@@ -187,7 +187,7 @@ const ListaUsuarios = () => {
       if (totalMensajesSinLeer > 0) {
         fetchUsuarios();
       }
-    }, 2000);
+    }, 10000);
 
     const intervalId2 = setInterval(() => {
       if (totalMensajesSinLeer > 0) {

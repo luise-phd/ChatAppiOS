@@ -9,8 +9,8 @@ import { useRoute } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import Axios from "axios";
-// Axios.defaults.baseURL = "http://192.168.20.23:4000";
-Axios.defaults.baseURL = 'https://backchatapp-production.up.railway.app'
+Axios.defaults.baseURL = "http://192.168.20.23:4000";
+// Axios.defaults.baseURL = 'https://backchatapp-production.up.railway.app'
 
 // import Footer from "../components/Footer";
 

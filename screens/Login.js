@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigation } from '@react-navigation/native';
-import { ScrollView, TextInput, Button, StyleSheet, TouchableOpacity, Text, KeyboardAvoidingView, Platform } from "react-native";
+import { ScrollView, TextInput, Button, StyleSheet, TouchableOpacity, Text, KeyboardAvoidingView, Platform, Alert } from "react-native";
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Axios from 'axios';
-// Axios.defaults.baseURL = 'http://192.168.20.23:4000';
-Axios.defaults.baseURL = 'https://backchatapp-production.up.railway.app'
+Axios.defaults.baseURL = 'http://192.168.20.23:4000';
+// Axios.defaults.baseURL = 'https://backchatapp-production.up.railway.app'
 
 const Login = () => {
   const [phone, setPhone] = useState("")
@@ -45,22 +45,24 @@ const Login = () => {
       // sessionStorage.setItem('nombre', nombre)
       // sessionStorage.setItem('idUsuario', idUsuario)
 
-      AsyncStorage.setItem('token', token).then(() => {
-        // Almacenamiento exitoso
-      }).catch((error) => {console.error(error);});
+      if(token !== undefined) {
+        AsyncStorage.setItem('token', token).then(() => {
+          // Almacenamiento exitoso
+        }).catch((error) => {console.error(error);});
 
-      AsyncStorage.setItem('nombre', nombre).then(() => {
-        // Almacenamiento exitoso
-      }).catch((error) => {console.error(error);});
+        AsyncStorage.setItem('nombre', nombre).then(() => {
+          // Almacenamiento exitoso
+        }).catch((error) => {console.error(error);});
 
-      AsyncStorage.setItem('idUsuario', idUsuario).then(() => {
-        // Almacenamiento exitoso
-      }).catch((error) => {console.error(error);});
+        AsyncStorage.setItem('idUsuario', idUsuario).then(() => {
+          // Almacenamiento exitoso
+        }).catch((error) => {console.error(error);});
+      }
 
       if (respuesta.data.mensaje !== "Contraseña incorrecta") { 
         navigation.navigate("VerUsuarios", { phone: phone });
       } else {
-        console.log('Datos incorrectos');
+        Alert.alert("Datos incorrectos")
       }
     } catch (error) {
       console.error(error);
@@ -106,8 +108,8 @@ const Login = () => {
         />
         {/* <Button title="Iniciar sesión" onPress={handleLogin} /> */}
         <TouchableOpacity style={styles.buttonContainer} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Iniciar sesión</Text>
-          </TouchableOpacity>
+          <Text style={styles.buttonText}>Iniciar sesión</Text>
+        </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
   );
