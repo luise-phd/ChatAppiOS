@@ -5,19 +5,19 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import * as BackgroundFetch from 'expo-background-fetch';
 import * as TaskManager from 'expo-task-manager';
-// import * as Permissions from 'expo-permissions';
 
 const BACKGROUND_FETCH_TASK = 'background-fetch';
 
 TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
+  // Aquí debes realizar tu lógica de fondo
   const now = Date.now();
   console.log(`Tarea en segundo plano ejecutada en: ${new Date(now).toISOString()}`);
 
   // Agregar notificación
   await Notifications.scheduleNotificationAsync({
     content: {
-      title: 'Tienes mensajes sin leer',
-      body: 'Revisa la aplicación para más detalles.',
+      title: 'Tarea en segundo plano ejecutada',
+      body: 'Revisa la consola para más detalles.',
       sound: 'default',
     },
     trigger: null,
@@ -29,13 +29,13 @@ TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
 async function registerBackgroundFetchAsync() {
   try {
     await BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
-      minimumInterval: 5,
+      minimumInterval: 0.001,
       stopOnTerminate: false,
       startOnBoot: true,
     });
     console.log('Tarea en segundo plano registrada con éxito.');
   } catch (error) {
-    console.log('Error al registrar la tarea en segundo plano:', error);
+    console.error('Error al registrar la tarea en segundo plano:', error);
   }
 }
 
@@ -48,6 +48,7 @@ Axios.defaults.baseURL = 'http://192.168.20.23:4000';
 // Axios.defaults.baseURL = 'https://backchatapp-production.up.railway.app'
 
 import * as Notifications from 'expo-notifications';
+import * as Permissions from 'expo-permissions';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -59,25 +60,25 @@ Notifications.setNotificationHandler({
 
 const Separator = () => <View style={styles.separator} />;
 
-const ListaUsuarios = ({ admin }) => {
+const ListaUsuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [phone, setPhone] = useState("");
-  const [adminAsync, setAdminAsync] = useState("");
+  // const [newMessages, setNewMessages] = useState("");
   const navigation = useNavigation();
 
   const fetchUsuarios = async () => {
     const id = await AsyncStorage.getItem("idUsuario");
     const token = await AsyncStorage.getItem("token");
-    setAdminAsync(await AsyncStorage.getItem("admin"));
-    
+    // const nombre = await AsyncStorage.getItem("nombre");
+
     try {
       const respuesta = await Axios.get(`/usuarios/buscar/${id}`, {
         headers: { autorizacion: token },
       });
-      
       const phone = respuesta.data.phone;
       setPhone(phone);
-      
+      // console.log(phone);
+
       const respuesta2 = await Axios.get(`/usuarios/listarUsuariosConMensajes/${phone}`, {
           headers: { autorizacion: token },
         }
@@ -87,8 +88,15 @@ const ListaUsuarios = ({ admin }) => {
         return usuario.state === "Activo" && usuario._id !== id;
       });
       setUsuarios(usuariosActivos);
+
+      // const response = await Axios.get('/usuarios');
+      // const response = await Axios.get('/usuario/listar', {
+      //   headers: { autorizacion: token },
+      // });
+
+      // setUsuarios(response.data);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -110,54 +118,68 @@ const ListaUsuarios = ({ admin }) => {
     });
   };
 
-  const checkAndRequestNotificationPermissions = async () => {
-    const settings = await Notifications.getPermissionsAsync();
-  
-    if (settings.status !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      if (status === 'granted') {
-        console.log('Permisos de notificación otorgados.');
-      } else {
-        console.log('Permisos de notificación denegados.');
-      }
-    } else {
+  // No solicita los permisos al usuario, algo no funciona bien
+  // const checkNotificationPermissions = async () => {
+  //   const settings = await Notifications.getPermissionsAsync();
+  //   if (settings.granted) {
+  //     console.log('Permisos de notificación otorgados.');
+  //   } else {
+  //     console.log('Permisos de notificación denegados.');
+  //   }
+  // };
+
+  // Este código va a quedar obsoleto
+  const checkNotificationPermissions = async () => {
+    const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+    if (status === 'granted') {
       console.log('Permisos de notificación otorgados.');
+    } else {
+      console.log('Permisos de notificación denegados.');
     }
   };
 
-  /*const checkBackgroundTaskPermissions = async () => {
+  const checkBackgroundTaskPermissions = async () => {
     const { status } = await Permissions.askAsync(Permissions.USER_FACING_NOTIFICATIONS);
     if (status === 'granted') {
       console.log('Permisos de tareas en segundo plano otorgados.');
     } else {
       console.log('Permisos de tareas en segundo plano denegados.');
     }
-  };*/
+  };
 
   // Manejador de notificaciones en primer plano
   /*const notificationForegroundListener = Notifications.addNotificationReceivedListener(notification => {
     console.log('Notificación recibida en primer plano:', notification);
-  });
-
-  // Manejador de notificaciones en segundo plano
-  const notificationBackgroundListener = Notifications.addNotificationResponseReceivedListener(notification => {
-    console.log('Notificación recibida en segundo plano:', notification);
+    // Puedes personalizar cómo manejar la notificación aquí
   });*/
 
+  // Manejador de notificaciones en segundo plano
+  const notificationBackgroundListener = Notifications.addNotificationResponseReceivedListener(response => {
+    console.log('Notificación recibida en segundo plano:');
+    // console.log('Notificación recibida en segundo plano:', response.notification);
+    // Puedes personalizar cómo manejar la notificación aquí
+  });
+
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [status, setStatus] = useState(null);
+
   const checkStatusAsync = async () => {
+    const status = await BackgroundFetch.getStatusAsync();
     const isRegistered = await TaskManager.isTaskRegisteredAsync(BACKGROUND_FETCH_TASK);
-    if (isRegistered) {
+    setStatus(status);
+    setIsRegistered(isRegistered);
+    if (!isRegistered) {
       await registerBackgroundFetchAsync();
     } /*else {
       await unregisterBackgroundFetchAsync();
     }*/
-    console.log(isRegistered)
+    console.log(status, isRegistered)
     registerBackgroundFetchAsync();
   };
 
   useEffect(() => {
-    checkAndRequestNotificationPermissions();
-    // checkBackgroundTaskPermissions();
+    checkNotificationPermissions();
+    checkBackgroundTaskPermissions();
 
     fetchUsuarios();
     checkStatusAsync();
@@ -166,40 +188,23 @@ const ListaUsuarios = ({ admin }) => {
       if (totalMensajesSinLeer > 0) {
         fetchUsuarios();
       }
-    }, 5000);
+    }, 10000);
 
     const intervalId2 = setInterval(() => {
       if (totalMensajesSinLeer > 0) {
         showNotification(totalMensajesSinLeer);
       }
-    }, 60000);
+    }, 30000);
 
     return () => {
       clearInterval(intervalId);
       clearInterval(intervalId2);
     }
+    
   }, [totalMensajesSinLeer]);
 
-  const handleItemClick = (item) => {
-    navigation.navigate("VerMensajes", { phoneOrigen: phone, phoneDestino: item.phone });
-  };
-
-  const handleLongPress = (item) => {
-    if(admin === "Si" || adminAsync === "Si") {
-      navigation.navigate("EditUser", { 
-        nombre: item.nombre, 
-        phoneDestino: item.phone,
-        email: item.email,
-        admin: item.admin,
-        state: item.state,
-      });
-    }
-  };
-
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={[styles.item, { width: deviceWidth }]}
-      onLongPress={() => handleLongPress(item)}
-      onPress={() => handleItemClick(item)}>
+    <TouchableOpacity style={[styles.item, { width: deviceWidth }]} onPress={() => handleItemClick(item)}>
       <View style={styles.leftColumn}>
         <Text style={{fontSize: 16}}>{item.nombre}</Text>
         <Text style={{fontSize: 14}}>{item.phone}</Text>
@@ -207,6 +212,10 @@ const ListaUsuarios = ({ admin }) => {
       <Text style={{fontSize: 14}}>{item.mensajesSinLeer > 0 ? item.mensajesSinLeer: ""}</Text>
     </TouchableOpacity>
   );
+
+  const handleItemClick = (item) => {
+    navigation.navigate("VerMensajes", { phoneOrigen: phone, phoneDestino: item.phone });
+  };
 
   const deviceWidth = Dimensions.get('window').width - 10;
 
@@ -218,6 +227,11 @@ const ListaUsuarios = ({ admin }) => {
         keyExtractor={(item) => item._id}
         ItemSeparatorComponent={Separator}
       />
+      {/* {elementos.map((elemento) => (
+        <View style={styles.item} key={elemento._id}>
+          <Text>{elemento.nombre}</Text>
+        </View>
+      ))} */}
     </View>
   );
 };

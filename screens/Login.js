@@ -11,6 +11,7 @@ Axios.defaults.baseURL = 'http://192.168.20.23:4000';
 const Login = () => {
   const [phone, setPhone] = useState("")
   const [pass, setPass] = useState("")
+  const [admin, setAdmin] = useState("")
   const navigation = useNavigation()
 
   useEffect(() => {
@@ -36,9 +37,10 @@ const Login = () => {
       const usuario = {phone, pass}
       const respuesta = await Axios.post('/usuarios/login', usuario)
 
-      const token = respuesta.data.token
-      const nombre = respuesta.data.nombre
-      const idUsuario = respuesta.data.id
+      const token = respuesta.data.token;
+      const nombre = respuesta.data.nombre;
+      const idUsuario = respuesta.data.id;
+      const admin = respuesta.data.admin;
 
       // Esto solo funciona en diseño web
       // sessionStorage.setItem('token', token)
@@ -57,10 +59,14 @@ const Login = () => {
         AsyncStorage.setItem('idUsuario', idUsuario).then(() => {
           // Almacenamiento exitoso
         }).catch((error) => {console.error(error);});
+
+        AsyncStorage.setItem('admin', admin).then(() => {
+          // Almacenamiento exitoso
+        }).catch((error) => {console.error(error);});
       }
 
-      if (respuesta.data.mensaje !== "Contraseña incorrecta") { 
-        navigation.navigate("VerUsuarios", { phone: phone });
+      if (respuesta.data.mensaje !== "Contraseña incorrecta") {
+        navigation.navigate("VerUsuarios", { phone: phone, admin: admin});
       } else {
         Alert.alert("Datos incorrectos")
       }
@@ -71,16 +77,6 @@ const Login = () => {
 
   const handleLogin = () => {
     iniciarSesion();
-
-    // Si el inicio de sesión es exitoso
-    // if (phone === '3113741912' && pass === '123') {
-    //   navigation.navigate("VerUsuarios", { telefono: phone });
-    // } else {
-    //     console.log('Datos incorrectos');
-    // }
-
-    // console.log("Usuario:", phone);
-    // console.log("Contraseña:", pass);
   };
 
   return (
@@ -95,7 +91,6 @@ const Login = () => {
           style={styles.input}
           placeholder="Usuario"
           value={phone}
-          // keyboardType="numeric"
           maxLength={10}
           onChangeText={setPhone}
         />
@@ -106,7 +101,6 @@ const Login = () => {
           onChangeText={setPass}
           secureTextEntry
         />
-        {/* <Button title="Iniciar sesión" onPress={handleLogin} /> */}
         <TouchableOpacity style={styles.buttonContainer} onPress={handleLogin}>
           <Text style={styles.buttonText}>Iniciar sesión</Text>
         </TouchableOpacity>

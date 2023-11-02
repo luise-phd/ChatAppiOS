@@ -1,25 +1,29 @@
 import { useState, useEffect } from "react";
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 
 import { useRoute } from "@react-navigation/native";
 
 import ListaUsuarios from "../components/ListaUsuarios";
-import Header from "../components/Header";
 import Footer from "../components/Footer";
 
 export default function VerUsuarios() {
   const navigation = useNavigation()
 
-  const [phone, setPhone] = useState("")
+  const [phone, setPhone] = useState("");
+  const [admin, setAdmin] = useState("");
+  const [adminAsync, setAdminAsync] = useState("");
   const route = useRoute();
-  const telefono = route.params?.phone;
   
   useEffect(() => {
-    setPhone(telefono);
-  }, []);
+    setPhone(route.params?.phone);
+    setAdmin(route.params?.admin);
+    validarAdmin();
+  }, [phone, admin]);
 
-  const editUsuarios = () => {
+  const addUsuarios = () => {
+    console.log("ok");
     // navigation.navigate("Login");
   };
 
@@ -27,13 +31,24 @@ export default function VerUsuarios() {
     navigation.navigate("EditPass");
   };
 
+  const validarAdmin = async () => {
+    setAdminAsync(await AsyncStorage.getItem("admin"));
+  }
+
   return (
     <View style={styles.container}>
       {/* <Header phone={phone}/> */}
-      <ListaUsuarios />
+      <ListaUsuarios admin={admin} />
       <View style={styles.buttonRow}>
-        <TouchableOpacity style={styles.buttonContainer} onPress={editUsuarios}>
-          <Text style={styles.buttonText}>Editar usuarios</Text>
+        <TouchableOpacity
+          style={[
+            styles.buttonContainer,
+            { opacity: admin === "Si" || adminAsync === "Si" ? 1 : 0.5 }
+          ]}
+          onPress={admin === "Si" || adminAsync === "Si" ? addUsuarios : null}
+          disabled={admin !== "Si" && adminAsync !== "Si" }
+        >
+          <Text style={styles.buttonText}>Agregar usuarios</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttonContainer} onPress={editPassword}>
           <Text style={styles.buttonText}>Editar contraseña</Text>
@@ -48,8 +63,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    // alignItems: "center",
-    // justifyContent: "center",
   },
   buttonContainer: {
     backgroundColor: "tomato",

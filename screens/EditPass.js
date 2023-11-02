@@ -19,8 +19,6 @@ const EditPass = () => {
   }, []);
 
   const editPassword = async () => {
-    const bcrypt = require("bcryptjs");
-
     const id = await AsyncStorage.getItem('idUsuario')
     const token = await AsyncStorage.getItem("token");
     try {

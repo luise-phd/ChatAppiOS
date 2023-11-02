@@ -1,6 +1,5 @@
 import {
-  StyleSheet, View, Text, FlatList, TouchableOpacity, Dimensions,
-  ScrollView, TextInput, Button, KeyboardAvoidingView, Platform
+  StyleSheet, View, Text, FlatList, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView, Platform
 } from "react-native";
 
 import { useRef, useState, useEffect } from "react";
@@ -11,8 +10,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Axios from "axios";
 Axios.defaults.baseURL = "http://192.168.20.23:4000";
 // Axios.defaults.baseURL = 'https://backchatapp-production.up.railway.app'
-
-// import Footer from "../components/Footer";
 
 const Separator = () => <View style={styles.separator} />;
 
@@ -89,7 +86,6 @@ export default function VerMensajes() {
     );
   };*/
 
-  // const deviceWidth = Dimensions.get('window').width - 10;
 
   const handleEnviar = async (e) => {
     e.stopPropagation();
