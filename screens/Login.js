@@ -66,10 +66,15 @@ const Login = () => {
       }
 
       if (respuesta.data.mensaje !== "Contraseña incorrecta") {
-        navigation.navigate("VerUsuarios", { phone: phone, admin: admin});
+        if(respuesta.data.mensaje !== "Usuario inactivo") {
+          navigation.navigate("VerUsuarios", { phone: phone, admin: admin});
+        } else {
+          Alert.alert("Usuario inactivo, por favor consulte con el administrador del sistema.")
+        }
       } else {
         Alert.alert("Datos incorrectos")
       }
+      // console.error(respuesta.data.mensaje);
     } catch (error) {
       console.error(error);
     }

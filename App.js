@@ -6,7 +6,7 @@ import VerUsuarios from "./screens/VerUsuarios";
 import VerMensajes from "./screens/VerMensajes";
 import Login from "./screens/Login";
 import EditPass from "./screens/EditPass";
-import EditUser from "./screens/EditUser";
+import EditAddUser from "./screens/EditAddUser";
 
 const Stack = createStackNavigator();
 
@@ -19,7 +19,7 @@ export default function App() {
         <Stack.Screen name="VerUsuarios" component={VerUsuarios} />
         <Stack.Screen name="VerMensajes" component={VerMensajes} />
         <Stack.Screen name="EditPass" component={EditPass} />
-        <Stack.Screen name="EditUser" component={EditUser} />
+        <Stack.Screen name="EditAddUser" component={EditAddUser} />
       </Stack.Navigator>
     </NavigationContainer>
   );

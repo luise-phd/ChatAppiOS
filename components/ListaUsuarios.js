@@ -5,28 +5,38 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import * as BackgroundFetch from 'expo-background-fetch';
 import * as TaskManager from 'expo-task-manager';
-// import * as Permissions from 'expo-permissions';
 
 const BACKGROUND_FETCH_TASK = 'background-fetch';
 
 TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
+  const mensajesSinLeer = await AsyncStorage.getItem('totalMensajesSinLeer');
   const now = Date.now();
   console.log(`Tarea en segundo plano ejecutada en: ${new Date(now).toISOString()}`);
+  console.log(`Total de mensajes sin leer: ${mensajesSinLeer}`);
 
-  // Agregar notificación
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: 'Tienes mensajes sin leer',
-      body: 'Revisa la aplicación para más detalles.',
-      sound: 'default',
-    },
-    trigger: null,
-  });
-
-  return BackgroundFetch.BackgroundFetchResult.NewData;
+  if(parseInt(mensajesSinLeer, 10) > 0) {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Tienes ' + mensajesSinLeer + ' mensajes sin leer',
+        body: 'Revisa la aplicación para más detalles.',
+        sound: 'default',
+      },
+      trigger: null,
+    });
+    // const isRegistered = await TaskManager.isTaskRegisteredAsync(BACKGROUND_FETCH_TASK);
+    // if (isRegistered) {
+    //   await BackgroundFetch.unregisterTaskAsync(BACKGROUND_FETCH_TASK);
+    //   console.log('Tarea des registrada');
+    // }
+    return BackgroundFetch.BackgroundFetchResult.NewData;
+  } else {
+    console.log('No hay mensajes sin leer');
+    return BackgroundFetch.BackgroundFetchResult.Failed;
+  }
 });
 
-async function registerBackgroundFetchAsync() {
+async function registerBackgroundFetchAsync(totalMensajesSinLeer) {
+  await AsyncStorage.setItem('totalMensajesSinLeer', totalMensajesSinLeer.toString());
   try {
     await BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
       minimumInterval: 5,
@@ -40,6 +50,7 @@ async function registerBackgroundFetchAsync() {
 }
 
 async function unregisterBackgroundFetchAsync() {
+  console.log('Tarea en segundo plano deshabilitada.');
   await BackgroundFetch.unregisterTaskAsync(BACKGROUND_FETCH_TASK);
 }
 
@@ -96,7 +107,7 @@ const ListaUsuarios = ({ admin }) => {
     (total, usuario) => total + usuario.mensajesSinLeer, 0
   );
 
-  const showNotification = async (totalMensajesSinLeer) => {
+  /*const showNotification = async (totalMensajesSinLeer) => {
     const notificationId = 'mensajeSinLeer';
 
     await Notifications.scheduleNotificationAsync({
@@ -108,7 +119,7 @@ const ListaUsuarios = ({ admin }) => {
       trigger: null,
       identifier: notificationId,
     });
-  };
+  };*/
 
   const checkAndRequestNotificationPermissions = async () => {
     const settings = await Notifications.getPermissionsAsync();
@@ -125,42 +136,10 @@ const ListaUsuarios = ({ admin }) => {
     }
   };
 
-  /*const checkBackgroundTaskPermissions = async () => {
-    const { status } = await Permissions.askAsync(Permissions.USER_FACING_NOTIFICATIONS);
-    if (status === 'granted') {
-      console.log('Permisos de tareas en segundo plano otorgados.');
-    } else {
-      console.log('Permisos de tareas en segundo plano denegados.');
-    }
-  };*/
-
-  // Manejador de notificaciones en primer plano
-  /*const notificationForegroundListener = Notifications.addNotificationReceivedListener(notification => {
-    console.log('Notificación recibida en primer plano:', notification);
-  });
-
-  // Manejador de notificaciones en segundo plano
-  const notificationBackgroundListener = Notifications.addNotificationResponseReceivedListener(notification => {
-    console.log('Notificación recibida en segundo plano:', notification);
-  });*/
-
-  const checkStatusAsync = async () => {
-    const isRegistered = await TaskManager.isTaskRegisteredAsync(BACKGROUND_FETCH_TASK);
-    if (isRegistered) {
-      await registerBackgroundFetchAsync();
-    } /*else {
-      await unregisterBackgroundFetchAsync();
-    }*/
-    console.log(isRegistered)
-    registerBackgroundFetchAsync();
-  };
-
   useEffect(() => {
     checkAndRequestNotificationPermissions();
-    // checkBackgroundTaskPermissions();
 
     fetchUsuarios();
-    checkStatusAsync();
 
     const intervalId = setInterval(() => {
       if (totalMensajesSinLeer > 0) {
@@ -170,9 +149,18 @@ const ListaUsuarios = ({ admin }) => {
 
     const intervalId2 = setInterval(() => {
       if (totalMensajesSinLeer > 0) {
-        showNotification(totalMensajesSinLeer);
+        // showNotification(totalMensajesSinLeer);
+        registerBackgroundFetchAsync(totalMensajesSinLeer);
+      } else {
+        unregisterBackgroundFetchAsync();
       }
     }, 60000);
+
+    if (totalMensajesSinLeer > 0) {
+      registerBackgroundFetchAsync(totalMensajesSinLeer);
+    } else {
+      unregisterBackgroundFetchAsync();
+    }
 
     return () => {
       clearInterval(intervalId);
@@ -186,7 +174,8 @@ const ListaUsuarios = ({ admin }) => {
 
   const handleLongPress = (item) => {
     if(admin === "Si" || adminAsync === "Si") {
-      navigation.navigate("EditUser", { 
+      navigation.navigate("EditAddUser", {
+        idusuario: item._id,
         nombre: item.nombre, 
         phoneDestino: item.phone,
         email: item.email,

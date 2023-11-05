@@ -14,17 +14,20 @@ export default function VerUsuarios() {
   const [phone, setPhone] = useState("");
   const [admin, setAdmin] = useState("");
   const [adminAsync, setAdminAsync] = useState("");
+  const [flag, setFlag] = useState("");
   const route = useRoute();
   
   useEffect(() => {
     setPhone(route.params?.phone);
     setAdmin(route.params?.admin);
     validarAdmin();
+    setFlag("add");
   }, [phone, admin]);
 
   const addUsuarios = () => {
-    console.log("ok");
-    // navigation.navigate("Login");
+    navigation.navigate("EditAddUser", {
+      flag: flag,
+    });
   };
 
   const editPassword = () => {
@@ -68,7 +71,7 @@ const styles = StyleSheet.create({
     backgroundColor: "tomato",
     padding: 5,
     borderRadius: 5,
-    flex: 1, // Esto asegura que los elementos ocupen el mismo espacio
+    flex: 1, // Asegura que los elementos ocupen el mismo espacio
     marginRight: 1, // Espacio entre los botones
     marginLeft: 1,
   },
@@ -77,10 +80,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   buttonRow: {
-    flexDirection: "row", // Esto coloca los elementos en la misma fila
-    justifyContent: "space-between", // Esto separa los elementos horizontalmente
+    flexDirection: "row",
+    justifyContent: "space-between", // Separa los elementos horizontalmente
     paddingHorizontal: 1, // Espaciado horizontal para los elementos en la fila
-    marginTop: 1, // Espacio superior
-    marginBottom: 1, // Espacio inferior
+    marginTop: 1,
+    marginBottom: 1,
   },
 });
