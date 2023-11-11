@@ -17,9 +17,9 @@ TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
   if(parseInt(mensajesSinLeer, 10) > 0) {
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: 'Tienes ' + mensajesSinLeer + ' mensajes sin leer',
+        title: 'Tienes mensajes sin leer',
         body: 'Revisa la aplicación para más detalles.',
-        sound: 'default',
+        // sound: 'default',
       },
       trigger: null,
     });
@@ -54,9 +54,7 @@ async function unregisterBackgroundFetchAsync() {
   await BackgroundFetch.unregisterTaskAsync(BACKGROUND_FETCH_TASK);
 }
 
-import Axios from 'axios';
-Axios.defaults.baseURL = 'http://192.168.20.23:4000';
-// Axios.defaults.baseURL = 'https://backchatapp-production.up.railway.app'
+import Axios from '../connect/server';
 
 import * as Notifications from 'expo-notifications';
 

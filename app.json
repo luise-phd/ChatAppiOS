@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "ChatAppiOS",
+    "name": "JUGAR",
     "slug": "ChatAppiOS",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -22,7 +22,7 @@
         ]
       },
       "bundleIdentifier": "com.ingluise.ChatAppiOS",
-      "buildNumber": "6"
+      "buildNumber": "8"
     },
     "android": {
       "adaptiveIcon": {

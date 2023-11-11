@@ -7,9 +7,7 @@ import { useRoute } from "@react-navigation/native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import Axios from "axios";
-Axios.defaults.baseURL = "http://192.168.20.23:4000";
-// Axios.defaults.baseURL = 'https://backchatapp-production.up.railway.app'
+import Axios from '../connect/server';
 
 const Separator = () => <View style={styles.separator} />;
 

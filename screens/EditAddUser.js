@@ -7,9 +7,7 @@ import { useRoute } from "@react-navigation/native";
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import Axios from 'axios';
-Axios.defaults.baseURL = 'http://192.168.20.23:4000';
-// Axios.defaults.baseURL = 'https://backchatapp-production.up.railway.app'
+import Axios from '../connect/server';
 
 const EditUser = () => {
   const navigation = useNavigation();
@@ -139,19 +137,24 @@ const EditUser = () => {
           onChangeText={setPhone}
         />
         <View style={styles.dropdownContainer}>
-          <Text>Administrador: </Text>
-          <ModalDropdown
+          <Text>Administrador </Text>
+          <ModalDropdown style={styles.dropdown}
+            dropdownStyle={styles.dropdownDropdown}
             options={["Si", "No"]}
             defaultValue={adminSelect}
             onSelect={(index, value) => setAdminSelect(value)}
           />
         </View>
         <View style={styles.dropdownContainer}>
-          <Text>Estado: </Text>
-          <ModalDropdown
+          <Text>Estado </Text>
+          <ModalDropdown style={styles.dropdown}
+            dropdownStyle={styles.dropdownDropdown}
             options={["Activo", "Inactivo"]}
             defaultValue={stateSelect}
-            onSelect={(index, value) => setStateSelect(value)}
+            onSelect={(index, value) => {
+              // console.log('index:', index, '- value:', value, '- stateSelect:', stateSelect);
+              setStateSelect(value);
+            }}
           />
         </View>
         {flag !== "add" ? (
@@ -199,12 +202,19 @@ const styles = StyleSheet.create({
   dropdownContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 5,
     marginBottom: 5,
   },
   dropdown: {
-    position: 'absolute',
-    right: 0,
+    flex: 1,
+    borderWidth: 1,
+    borderColor: 'gray',
+    padding: 10,
+  },
+  dropdownDropdown: {
+    width: 120,
+    height: 70,
+    borderColor: 'gray',
+    borderWidth: 1,
   },
   buttonContainer: {
     width: "100%",
@@ -228,6 +238,7 @@ const styles = StyleSheet.create({
     flex: 1, // Asegura que los elementos ocupen el mismo espacio
     marginRight: 1,
     marginLeft: 1,
+    marginTop: 5
   },
   buttonText: {
     fontSize: 16,
