@@ -92,10 +92,17 @@ const ListaUsuarios = ({ admin }) => {
         }
       );
 
-      const usuariosActivos = respuesta2.data.usuarios.filter((usuario) => {
-        return usuario.state === "Activo" && usuario._id !== id;
-      });
-      setUsuarios(usuariosActivos);
+      if(admin === "Si" || adminAsync === "Si") {
+        const usuarios = respuesta2.data.usuarios.filter((usuario) => {
+          return usuario._id !== id;
+        });
+        setUsuarios(usuarios);
+      } else {
+        const usuariosActivos = respuesta2.data.usuarios.filter((usuario) => {
+          return usuario.state === "Activo" && usuario._id !== id;
+        });
+        setUsuarios(usuariosActivos);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -188,10 +195,12 @@ const ListaUsuarios = ({ admin }) => {
       onLongPress={() => handleLongPress(item)}
       onPress={() => handleItemClick(item)}>
       <View style={styles.leftColumn}>
-        <Text style={{fontSize: 16}}>{item.nombre}</Text>
-        <Text style={{fontSize: 14}}>{item.phone}</Text>
+        <Text style={{ fontSize: 16, color: item.state === 'Inactivo' ? 'lightgray' : 'black' }}>{item.nombre}</Text>
+        <Text style={{ fontSize: 14, color: item.state === 'Inactivo' ? 'lightgray' : 'black' }}>{item.phone}</Text>
       </View>
-      <Text style={{fontSize: 14}}>{item.mensajesSinLeer > 0 ? item.mensajesSinLeer: ""}</Text>
+      <Text style={{ fontSize: 14, color: item.state === 'Inactivo' ? 'lightgray' : 'black' }}>
+        {item.mensajesSinLeer > 0 ? item.mensajesSinLeer: ""}
+      </Text>
     </TouchableOpacity>
   );
 
