@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions } from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Axios from '../connect/server';
 
 import * as BackgroundFetch from 'expo-background-fetch';
 import * as TaskManager from 'expo-task-manager';
+
+import * as Notifications from 'expo-notifications';
 
 const BACKGROUND_FETCH_TASK = 'background-fetch';
 
@@ -26,7 +29,6 @@ TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
     // const isRegistered = await TaskManager.isTaskRegisteredAsync(BACKGROUND_FETCH_TASK);
     // if (isRegistered) {
     //   await BackgroundFetch.unregisterTaskAsync(BACKGROUND_FETCH_TASK);
-    //   console.log('Tarea des registrada');
     // }
     return BackgroundFetch.BackgroundFetchResult.NewData;
   } else {
@@ -53,10 +55,6 @@ async function unregisterBackgroundFetchAsync() {
   console.log('Tarea en segundo plano deshabilitada.');
   await BackgroundFetch.unregisterTaskAsync(BACKGROUND_FETCH_TASK);
 }
-
-import Axios from '../connect/server';
-
-import * as Notifications from 'expo-notifications';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -92,18 +90,12 @@ const ListaUsuarios = ({ admin }) => {
         }
       );
 
-      // if(admin === "Si" || adminAsync === "Si") {
-      //   const usuarios = respuesta2.data.usuarios.filter((usuario) => {
-      //     return usuario._id !== id;
-      //   });
-      //   setUsuarios(usuarios);
-      // } else {
-        const usuarios = respuesta2.data.usuarios.filter((usuario) => {
-          // return usuario.state === "Activo" && usuario._id !== id;
-          return usuario._id !== id;
-        });
-        setUsuarios(usuarios);
-      // }
+      const usuarios = respuesta2.data.usuarios.filter((usuario) => {
+        // return usuario.state === "Activo" && usuario._id !== id;
+        return usuario._id !== id;
+      });
+
+      setUsuarios(usuarios);
     } catch (error) {
       console.log(error);
     }
@@ -148,9 +140,7 @@ const ListaUsuarios = ({ admin }) => {
     fetchUsuarios();
 
     const intervalId = setInterval(() => {
-      if (totalMensajesSinLeer > 0) {
-        fetchUsuarios();
-      }
+      fetchUsuarios();
     }, 5000);
 
     const intervalId2 = setInterval(() => {
@@ -193,7 +183,7 @@ const ListaUsuarios = ({ admin }) => {
 
   const renderItem = ({ item }) => (
     <>
-      {admin === 'Si' || (admin === 'No' && item.state === 'Activo') ? (
+      {(admin === 'Si' || adminAsync === 'Si') || ((admin === 'No' || adminAsync === 'No') && item.state === 'Activo') ? (
         <TouchableOpacity style={[styles.item, { width: deviceWidth }]}
           onLongPress={() => handleLongPress(item)}
           onPress={() => handleItemClick(item)}>
